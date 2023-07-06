@@ -1,7 +1,3 @@
-"""
-Flask Application 
-"""
-
 from flask import Flask, jsonify,render_template,request,redirect,url_for,flash
 
 # import database function
