@@ -67,9 +67,7 @@ def register(user_name, email, password, user_type):
         return(f"An error occurred: {e}")
 
 
-
 def login(username, password):
-
     try:
         # Establish a connection to the database
         db = mysql.connector.connect(
@@ -82,25 +80,26 @@ def login(username, password):
         # Create a cursor object to execute SQL queries
         cursor = db.cursor()
 
-        # Define the SQL query to insert values into the table
-        query = f"SELECT * FROM users WHERE user_name = '{username}' and password = '{password}'"
+        # Define the SQL query to select values from the table
+        query = "SELECT * FROM users WHERE user_name = %s AND password = %s"
 
         # Execute the SQL query with the provided values
-        cursor.execute(query)
+        cursor.execute(query, (username, password))
 
-        # Fetch the results
-        result = cursor.fetchall()
+        # Fetch the result
+        result = cursor.fetchone()
 
         # Close the cursor and the database connection
         cursor.close()
         db.close()
 
-        return result
+        if result:
+            return "Logged in Successfully !"
+        else:
+            return "Error: Invalid username or password, Don't have an account? try to Register."
 
     except mysql.connector.Error as error:
-        print(f"Error connecting to MySQL: {error}")
+        return f"Error connecting to MySQL: {error}"
 
     except Exception as e:
-        print(f"An error occurred: {e}")
-
-    return None
+        return f"An error occurred: {e}"

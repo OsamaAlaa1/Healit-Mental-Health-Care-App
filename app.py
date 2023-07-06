@@ -11,6 +11,7 @@ from chatbot_files.chat import get_response
 
 # app initialization 
 app = Flask(__name__)
+app.secret_key = '1223334444' 
 
 log = False
 username = 'Login'
@@ -78,15 +79,19 @@ def register():
     
     if request.method == 'POST':
 
-        username = request.form['username']
+        username = request.form['username'].lower()
         email = request.form['email']
         password = request.form['pass']
         user_type = request.form['user_type']
         
         message = db.register(username,email,password,user_type)
 
-        global log
-        log = True
+        if 'Error' in message:
+            flash(' Username Not Available! ', category='error')
+        else:
+            flash(message, category='success')
+            global log 
+            log = True
 
         return render_template('register.html' ,message = message)
 
@@ -101,19 +106,21 @@ def login():
     
     if request.method == 'POST':
 
-        username = request.form['username']
+        username = request.form['username'].lower()
         password = request.form['pass']
         
-        db.login(username,password)
-        
-        global log 
-        log = True
+        message = db.login(username,password)
+        if 'Error' in message:
+            flash(message, category='error')
+        else:
+            flash(message, category='success')
+            global log 
+            log = True
 
 
-        return render_template('detector.html',username = username)
+        return render_template('login.html',message = message)
 
-
-    return render_template('login.html')
+    return render_template('login.html' , message = '')
 
 
 # render detector page
@@ -146,13 +153,11 @@ def detector():
 # render treatment page
 @app.route('/treatment')
 def treatment():
+    
+    if not log:
+        return redirect(url_for('login'))  # Redirect to the login page if not logged in
+
     return render_template('treatment.html')
-
-# render treatment page
-@app.route('/doctor')
-def doctor():
-    return render_template('doctor.html')
-
 
 # render about page
 @app.route('/about')
@@ -167,6 +172,10 @@ def model():
 # render model page
 @app.route('/support')
 def support():
+    
+    if not log:
+        return redirect(url_for('login'))  # Redirect to the login page if not logged in
+
     return render_template('support.html')
 
 
