@@ -59,6 +59,7 @@ def register(user_name, email, password, user_type):
         cursor.close()
         db.close()
         return ("Account Created Successfully!")
+    
     except mysql.connector.Error as error:
         return(f"Error connecting to MySQL: {error}")
 
