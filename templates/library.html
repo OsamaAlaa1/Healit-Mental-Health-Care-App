@@ -19,6 +19,9 @@
     <link rel="stylesheet" href="https://fonts.cmsfly.com/css?family=Raleway:&display=swap" />
     <link rel="stylesheet" href="https://cdn.dorik.com/640dfefc10e29e00bfc2dd5e/css/library.css?v=1688563421758" />
     <link rel="stylesheet" href="https://assets.dorik.io/shared/aos.css" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+
     <style>
         .search-bar {
             display: flex;
@@ -158,18 +161,38 @@
                                 <p></p>
                             </div>
 
+
                             <div class="search-container">
 
                                 <form method='post' action="#disorder-info">
-
                                     <div class="search-bar">
-                                        <input type="text" placeholder="Mental Disorder Name" name='search_text'required>
+                                        <input type="text" id="disorder-search" placeholder="Mental Disorder Name"
+                                            name='search_text' required >
                                         <input type="submit" value="Search"
                                             class="dorik-button-8vozv32y-wrapper dorik-btn dorik-button-8vozv32y">
                                     </div>
                                 </form>
+
                             </div>
+
+                                                            
+                                {% with messages = get_flashed_messages(with_categories=true) %}
+                                {% if messages %}
+                                    {% for category, message in messages %}
+                                        {% if category == 'error' %}
+                                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                                {{ message }}
+                                                <button type="button" class="close" data-dismiss="alert">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+
                         </div>
+
 
                     </div>
                     <div class="col-lg-1/2 ">
@@ -195,7 +218,7 @@
                         <div class="column-inner dorik-column-y3hg9y7w  1/2">
                             <div class="dorik-wrapper dorik-heading-4svhotid-wrapper ">
                                 <h2 class="dorik-heading dorik-heading-4svhotid "><span>
-                                    <p>{{disorder}}</p>
+                                        <p>{{disorder}}</p>
                                     </span></h2>
                             </div>
                         </div>
@@ -212,8 +235,8 @@
                                 <h3 class="dorik-heading dorik-heading-es5vrgnf "><span>1. General Info
                                     </span></h3>
                             </div>
-                            
-                            
+
+
                             <div class="dorik-text dorik-text-qpqlwklw ">
                                 <ul>
                                     <li>
@@ -254,7 +277,7 @@
                             <div class="dorik-text dorik-text-xrctrkfm ">
                                 <p>Most common risk factors for {{disorder}}:</p><br>
                                 <ul>
-                                    
+
                                     {% for risk in risk_factors %}
                                     <li> {{ risk[0] }} </li><br>
                                     {% endfor %}
@@ -604,8 +627,46 @@
                 }
             }, 500);
         }())
+
+        // function for auto-complete
+
+        $(document).ready(function () {
+            // Fetch disorder names from the database
+            $.ajax({
+                url: '/get_disorder_names', // Replace with the appropriate URL for fetching disorder names
+                type: 'GET',
+                success: function (data) {
+                    // Convert the response to an array of disorder names
+                    var disorderNames = data.disorder_names;
+
+                    // Initialize autocomplete on the search bar
+                    $('#disorder-search').autocomplete({
+                        source: disorderNames,
+                        minLength: 1, // Minimum number of characters required to trigger autocomplete
+                        change: function (event, ui) {
+                            var enteredValue = $(this).val();
+                            var valid = false;
+                            for (var i = 0; i < disorderNames.length; i++) {
+                                if (disorderNames[i].toLowerCase() === enteredValue.toLowerCase()) {
+                                    valid = true;
+                                    break;
+                                }
+                            }
+                            if (!valid) {
+                                $(this).val('');
+                            }
+                        }
+                    });
+                },
+                error: function (error) {
+                    console.error('Error fetching disorder names:', error);
+                }
+            });
+        });
+
     </script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 
 </body>
 

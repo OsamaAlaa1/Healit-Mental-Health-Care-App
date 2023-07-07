@@ -4,33 +4,38 @@ import mysql.connector
 
 
 # function to connect Database:
-def connect_excute_db(db_name,query):
+def connect_excute_db(db_name, query):
+    try:
+        # Establish a connection to the database
+        db = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="122333",
+            database=db_name
+        )
 
-    # Establish a connection to the database
-    db = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="122333",
-        database= db_name 
-    )
+        # Create a cursor object to interact with the database
+        cursor = db.cursor()
+
+        # Execute a query
+        cursor.execute(query)
+
+        # Fetch all the rows from the result set
+        result = cursor.fetchall()
 
 
-    # Create a cursor object to interact with the database
-    cursor = db.cursor()
+        # Close the cursor and database connections
+        cursor.close()
+        db.close()
 
-    # Execute a query
-    cursor.execute(query)
+        # Return the results
+        return result
 
-    # Fetch the results
-    result = cursor.fetchall()
+    except mysql.connector.Error as error:
+        return f"Error connecting to MySQL: {error}"
 
-        
-    # Close the cursor and database connections
-    cursor.close()
-    db.close()
-    
-    #return the results
-    return result
+    except Exception as e:
+        return f"An error occurred: {e}"
 
 
 def register(user_name, email, password, user_type):
@@ -103,3 +108,35 @@ def login(username, password):
 
     except Exception as e:
         return f"An error occurred: {e}"
+
+
+def disorders():
+    # Establish a connection to the database
+        db = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="122333",
+            database='mentalhealth_db'
+        )
+
+        # Create a cursor object to execute SQL queries
+        cursor = db.cursor()
+
+        # Define the SQL query to select values from the table
+        query = "SELECT disorder_name FROM disorders;"
+
+        # Execute the SQL query with the provided values
+        cursor.execute(query)
+
+        # Fetch the result
+        results = cursor.fetchall()
+        
+
+        # Close the cursor and the database connection
+        cursor.close()
+        db.close()
+        
+        results = [result[0] for result in results]
+
+        return results
+

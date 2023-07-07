@@ -51,17 +51,21 @@ def library():
         
         #get disorder name 
         disorder = str(request.form['search_text']).capitalize()
+        disorders = db.disorders()
+        # search bar validation
+        if disorder not in disorders:
+            flash(' Disorder Not Available! ', category='error')
+
+        else: 
+            #connect and excute queries to get general Information 
+            disorder_id = db.connect_excute_db("mentalhealth_db",f"SELECT disorder_id FROM disorders WHERE disorder_name = '{disorder}'")[0][0]    # as it's list of tuples
+            general_info = db.connect_excute_db("mentalhealth_db",f"SELECT disorder_info FROM disorders WHERE disorder_name = '{disorder}'")[0][0]  # as it's list of tuples
+            risk_factors = db.connect_excute_db("mentalhealth_db",f"SELECT C.cause FROM disorder_cause AS DC, causes AS C WHERE DC.disorder_id = {disorder_id} AND C.cause_id = DC.cause_id;")
+            symptoms = db.connect_excute_db("mentalhealth_db",f"SELECT S.symptom FROM disorder_symptom AS DS, symptoms AS S WHERE DS.disorder_id = {disorder_id} AND S.symptom_id = DS.symptom_id;")
+            treatments = db.connect_excute_db("mentalhealth_db",f"SELECT T.treatment FROM disorder_treatment AS DT, treatments AS T WHERE DT.disorder_id = {disorder_id} AND T.treatment_id = DT.treatment_id;")
+            return render_template('library.html',disorder= disorder, general_info = general_info, risk_factors = risk_factors, symptoms = symptoms, treatments = treatments, enumerate = enumerate, len = len)
         
-        #connect and excute queries to get general Information 
-    
-        disorder_id = db.connect_excute_db("mentalhealth_db",f"SELECT disorder_id FROM disorders WHERE disorder_name = '{disorder}'")[0][0]    # as it's list of tuples
-        general_info = db.connect_excute_db("mentalhealth_db",f"SELECT disorder_info FROM disorders WHERE disorder_name = '{disorder}'")[0][0]  # as it's list of tuples
-        risk_factors = db.connect_excute_db("mentalhealth_db",f"SELECT C.cause FROM disorder_cause AS DC, causes AS C WHERE DC.disorder_id = {disorder_id} AND C.cause_id = DC.cause_id;")
-        symptoms = db.connect_excute_db("mentalhealth_db",f"SELECT S.symptom FROM disorder_symptom AS DS, symptoms AS S WHERE DS.disorder_id = {disorder_id} AND S.symptom_id = DS.symptom_id;")
-        treatments = db.connect_excute_db("mentalhealth_db",f"SELECT T.treatment FROM disorder_treatment AS DT, treatments AS T WHERE DT.disorder_id = {disorder_id} AND T.treatment_id = DT.treatment_id;")
-
-        return render_template('library.html',disorder= disorder, general_info = general_info, risk_factors = risk_factors, symptoms = symptoms, treatments = treatments, enumerate = enumerate, len = len)
-
+        
     return render_template( 'library.html',disorder ="Mental Disorders", general_info ="""
     Mental disorders, also called mental illnesses, refer to a wide range of mental health conditions that affect an individual's mood, behavior, 
     and thinking. These disorders can impact a person's ability to function normally in their daily life and can affect anyone regardless of age, gender, race, or socio-economic status.""", 
@@ -177,6 +181,15 @@ def support():
         return redirect(url_for('login'))  # Redirect to the login page if not logged in
 
     return render_template('support.html')
+
+
+@app.route('/get_disorder_names', methods=['GET'])
+def get_disorder_names():
+
+    # disorder names from the table
+    disorder_names = db.disorders()
+
+    return jsonify({'disorder_names': disorder_names})
 
 
 
