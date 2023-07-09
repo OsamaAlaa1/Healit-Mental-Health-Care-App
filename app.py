@@ -37,7 +37,6 @@ def base():
 @app.post("/predict")
 def predict():
     text = request.get_json().get("message")
-    # check if text is valid
     response = get_response(text)
     message = {"answer": response}
     return jsonify(message)
