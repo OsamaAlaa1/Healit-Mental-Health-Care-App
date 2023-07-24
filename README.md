@@ -31,6 +31,6 @@ We believe in the power of collaboration and welcome contributions from the comm
 
 
 
-We are here to help you on your journey to mental well-being.
+We are here to help for mental well-being.
 Join us in making a positive impact on mental health care with HealIt. Together, let's embrace the potential for a healthier and happier world.
 
